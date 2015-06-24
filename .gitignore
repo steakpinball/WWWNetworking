@@ -1,0 +1,10 @@
+# Unity Generated Folders
+/Library/
+/Temp/
+
+# Unity Generated Files
+/*.sln
+/*.csproj
+
+# MonoDevelop Generated Files
+/*.userprefs
