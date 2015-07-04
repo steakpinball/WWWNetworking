@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace WWWNetworking
 {
+	/// <summary>
+	/// Reports download progress.
+	/// </summary>
 	public class ProgressRequest : RequestWithError
 	{
 		public Action<float> Progress { get; private set; }
@@ -17,12 +20,19 @@ namespace WWWNetworking
 		{
 			using (var www = new WWW(Url)) {
 				while (!www.isDone) {
-					Progress(www.progress);
+					OnProgress(www.progress);
 					yield return null;
 				}
-				Progress(www.progress);
+				OnProgress(www.progress);
 
 				FinalErrorCheck(www);
+			}
+		}
+
+		protected void OnProgress(float progress)
+		{
+			if (null != Progress) {
+				Progress(progress);
 			}
 		}
 	}
