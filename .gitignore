@@ -5,6 +5,7 @@
 # Unity Generated Files
 /*.sln
 /*.csproj
+/*.unityproj
 
 # MonoDevelop Generated Files
 /*.userprefs
