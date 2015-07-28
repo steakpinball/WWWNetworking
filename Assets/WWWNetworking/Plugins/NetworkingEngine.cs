@@ -16,7 +16,7 @@ namespace WWWNetworking
 		/// </summary>
 		[SerializeField]
 		[Tooltip("Maximum number of concurrent downloads.")]
-		private int maxConcurrent = 1;
+		private int m_maxConcurrent = 1;
 
 		/// <summary>
 		/// Gets or sets maximum number of concurrently running requests.
@@ -27,10 +27,10 @@ namespace WWWNetworking
 		/// <value>Maximum number of concurrent running requests</value>
 		public int MaxConcurrent
 		{
-			get { return maxConcurrent; }
+			get { return m_maxConcurrent; }
 			set
 			{
-				maxConcurrent = Math.Max(0, value);
+				m_maxConcurrent = Math.Max(0, value);
 				CheckProcess();
 			}
 		}
@@ -40,8 +40,8 @@ namespace WWWNetworking
 		/// </summary>
 		public event Action AllCompleted;
 
-		private Queue<IRequest> mQueue = new Queue<IRequest>();
-		private int mCurrentCount = 0;
+		private Queue<IRequest> m_queue = new Queue<IRequest>();
+		private int m_currentCount = 0;
 
 		/// <summary>
 		/// Adds a request to the queue or starts it if possible.
@@ -49,7 +49,7 @@ namespace WWWNetworking
 		/// <param name="request">Request</param>
 		public void Add(IRequest request)
 		{
-			mQueue.Enqueue(request);
+			m_queue.Enqueue(request);
 			CheckProcessNext();
 		}
 
@@ -58,9 +58,9 @@ namespace WWWNetworking
 		/// </summary>
 		public void CancelAll()
 		{
-			mQueue.Clear();
+			m_queue.Clear();
 			StopAllCoroutines();
-			mCurrentCount = 0;
+			m_currentCount = 0;
 			OnAllCompleted();
 		}
 
@@ -73,21 +73,21 @@ namespace WWWNetworking
 
 		private void CheckProcess()
 		{
-			while (mCurrentCount < maxConcurrent && 0 < mQueue.Count) {
+			while (m_currentCount < m_maxConcurrent && 0 < m_queue.Count) {
 				ProcessNext();
 			}
 		}
 
 		private void CheckProcessNext()
 		{
-			if (mCurrentCount < maxConcurrent && 0 < mQueue.Count) {
+			if (m_currentCount < m_maxConcurrent && 0 < m_queue.Count) {
 				ProcessNext();
 			}
 		}
 
 		private void ProcessNext()
 		{
-			Process(mQueue.Dequeue());
+			Process(m_queue.Dequeue());
 		}
 
 		private void Process(IRequest request)
@@ -97,15 +97,15 @@ namespace WWWNetworking
 
 		private IEnumerator ProcessWrapper(IRequest request)
 		{
-			++mCurrentCount;
+			++m_currentCount;
 
 			yield return StartCoroutine(request.RunRequest());
 
-			--mCurrentCount;
+			--m_currentCount;
 
 			CheckProcessNext();
 
-			if (0 == mCurrentCount) {
+			if (0 == m_currentCount) {
 				// Finished
 				OnAllCompleted();
 			}
@@ -115,7 +115,7 @@ namespace WWWNetworking
 		protected virtual void OnValidate()
 		{
 			// Max concurrent can not be negative
-			maxConcurrent = Math.Max(0, maxConcurrent);
+			m_maxConcurrent = Math.Max(0, m_maxConcurrent);
 		}
 		#endregion
 	}
