@@ -16,7 +16,7 @@ namespace WWWNetworking
 		/// </summary>
 		[SerializeField]
 		[Tooltip("Maximum number of concurrent downloads.")]
-		private int m_maxConcurrent = 1;
+		int m_maxConcurrent = 1;
 
 		/// <summary>
 		/// Gets or sets maximum number of concurrently running requests.
@@ -35,13 +35,16 @@ namespace WWWNetworking
 			}
 		}
 
+		public int ActiveCount { get; private set; }
+
 		/// <summary>
 		/// Occurs when all queued requests have finished or been cancelled.
 		/// </summary>
 		public event Action AllCompleted;
 
-		private Queue<IRequest> m_queue = new Queue<IRequest>();
-		private int m_currentCount = 0;
+		Queue<IRequest> m_queue = new Queue<IRequest>();
+
+		public int QueuedCount { get { return m_queue.Count; } }
 
 		/// <summary>
 		/// Adds a request to the queue or starts it if possible.
@@ -60,7 +63,7 @@ namespace WWWNetworking
 		{
 			m_queue.Clear();
 			StopAllCoroutines();
-			m_currentCount = 0;
+			ActiveCount = 0;
 			OnAllCompleted();
 		}
 
@@ -71,47 +74,47 @@ namespace WWWNetworking
 			}
 		}
 
-		private void CheckProcess()
+		void CheckProcess()
 		{
-			while (m_currentCount < m_maxConcurrent && 0 < m_queue.Count) {
+			while (ActiveCount < m_maxConcurrent && 0 < m_queue.Count) {
 				ProcessNext();
 			}
 		}
 
-		private void CheckProcessNext()
+		void CheckProcessNext()
 		{
-			if (m_currentCount < m_maxConcurrent && 0 < m_queue.Count) {
+			if (ActiveCount < m_maxConcurrent && 0 < m_queue.Count) {
 				ProcessNext();
 			}
 		}
 
-		private void ProcessNext()
+		void ProcessNext()
 		{
 			Process(m_queue.Dequeue());
 		}
 
-		private void Process(IRequest request)
+		void Process(IRequest request)
 		{
 			StartCoroutine(ProcessWrapper(request));
 		}
 
-		private IEnumerator ProcessWrapper(IRequest request)
+		IEnumerator ProcessWrapper(IRequest request)
 		{
-			++m_currentCount;
+			++ActiveCount;
 
 			yield return StartCoroutine(request.RunRequest());
 
-			--m_currentCount;
+			--ActiveCount;
 
 			CheckProcessNext();
 
-			if (0 == m_currentCount) {
+			if (0 == ActiveCount) {
 				// Finished
 				OnAllCompleted();
 			}
 		}
 
-		#region Base Overrides
+		#region Overrides
 		protected virtual void OnValidate()
 		{
 			// Max concurrent can not be negative

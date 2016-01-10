@@ -15,8 +15,8 @@ namespace WWWNetworking
 
 		public CachableAssetBundleRequest(string url, int version, Action<float> progress, Action<AssetBundle> success, Action<string> error) : base(url, progress, null, error)
 		{
-			this.Version = version;
-			this.Success = success;
+			Version = version;
+			Success = success;
 		}
 
 		#region Base Overrides
