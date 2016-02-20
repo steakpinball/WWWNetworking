@@ -16,7 +16,7 @@ namespace WWWNetworking
 		/// </summary>
 		[SerializeField]
 		[Tooltip("Maximum number of concurrent downloads.")]
-		private int maxConcurrent = 1;
+		int m_maxConcurrent = 1;
 
 		/// <summary>
 		/// Gets or sets maximum number of concurrently running requests.
@@ -27,21 +27,24 @@ namespace WWWNetworking
 		/// <value>Maximum number of concurrent running requests</value>
 		public int MaxConcurrent
 		{
-			get { return maxConcurrent; }
+			get { return m_maxConcurrent; }
 			set
 			{
-				maxConcurrent = Math.Max(0, value);
+				m_maxConcurrent = Math.Max(0, value);
 				CheckProcess();
 			}
 		}
+
+		public int ActiveCount { get; private set; }
 
 		/// <summary>
 		/// Occurs when all queued requests have finished or been cancelled.
 		/// </summary>
 		public event Action AllCompleted;
 
-		private Queue<IRequest> mQueue = new Queue<IRequest>();
-		private int mCurrentCount = 0;
+		Queue<IRequest> m_queue = new Queue<IRequest>();
+
+		public int QueuedCount { get { return m_queue.Count; } }
 
 		/// <summary>
 		/// Adds a request to the queue or starts it if possible.
@@ -49,7 +52,7 @@ namespace WWWNetworking
 		/// <param name="request">Request</param>
 		public void Add(IRequest request)
 		{
-			mQueue.Enqueue(request);
+			m_queue.Enqueue(request);
 			CheckProcessNext();
 		}
 
@@ -58,9 +61,9 @@ namespace WWWNetworking
 		/// </summary>
 		public void CancelAll()
 		{
-			mQueue.Clear();
+			m_queue.Clear();
 			StopAllCoroutines();
-			mCurrentCount = 0;
+			ActiveCount = 0;
 			OnAllCompleted();
 		}
 
@@ -71,51 +74,51 @@ namespace WWWNetworking
 			}
 		}
 
-		private void CheckProcess()
+		void CheckProcess()
 		{
-			while (mCurrentCount < maxConcurrent && 0 < mQueue.Count) {
+			while (ActiveCount < m_maxConcurrent && 0 < m_queue.Count) {
 				ProcessNext();
 			}
 		}
 
-		private void CheckProcessNext()
+		void CheckProcessNext()
 		{
-			if (mCurrentCount < maxConcurrent && 0 < mQueue.Count) {
+			if (ActiveCount < m_maxConcurrent && 0 < m_queue.Count) {
 				ProcessNext();
 			}
 		}
 
-		private void ProcessNext()
+		void ProcessNext()
 		{
-			Process(mQueue.Dequeue());
+			Process(m_queue.Dequeue());
 		}
 
-		private void Process(IRequest request)
+		void Process(IRequest request)
 		{
 			StartCoroutine(ProcessWrapper(request));
 		}
 
-		private IEnumerator ProcessWrapper(IRequest request)
+		IEnumerator ProcessWrapper(IRequest request)
 		{
-			++mCurrentCount;
+			++ActiveCount;
 
 			yield return StartCoroutine(request.RunRequest());
 
-			--mCurrentCount;
+			--ActiveCount;
 
 			CheckProcessNext();
 
-			if (0 == mCurrentCount) {
+			if (0 == ActiveCount) {
 				// Finished
 				OnAllCompleted();
 			}
 		}
 
-		#region Base Overrides
+		#region Overrides
 		protected virtual void OnValidate()
 		{
 			// Max concurrent can not be negative
-			maxConcurrent = Math.Max(0, maxConcurrent);
+			m_maxConcurrent = Math.Max(0, m_maxConcurrent);
 		}
 		#endregion
 	}
