@@ -10,16 +10,31 @@ namespace WWWNetworking
 	/// </summary>
 	public class CachableAssetBundleRequest : ProgressRequest
 	{
+		/// <summary>
+		/// The version of the asset bundle to request
+		/// </summary>
+		/// <value>The version</value>
 		public int Version { get; private set; }
-		public new Action<AssetBundle> Success { get; private set; }
 
-		public CachableAssetBundleRequest(string url, int version, Action<float> progress, Action<AssetBundle> success, Action<string> error) : base(url, progress, null, error)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:WWWNetworking.CachableAssetBundleRequest"/> class.
+		/// </summary>
+		/// <param name="url">URL for reques</param>
+		/// <param name="version">Version of asset bundle</param>
+		/// <param name="progress">Progress callback</param>
+		/// <param name="success">Success callback</param>
+		/// <param name="error">Error callback</param>
+		public CachableAssetBundleRequest(string url, int version, Action<float> progress, Action<AssetBundle> success, Action<string> error) : base(url, progress, www => success(www.assetBundle), error)
 		{
 			Version = version;
-			Success = success;
 		}
 
 		#region Base Overrides
+
+		/// <summary>
+		/// Runs the request.
+		/// </summary>
+		/// <returns>Enumerator for Coroutine</returns>
 		public override IEnumerator RunRequest()
 		{
 			using (var www = WWW.LoadFromCacheOrDownload(Url, Version)) {
@@ -29,14 +44,10 @@ namespace WWWNetworking
 				}
 				OnProgress(www.progress);
 
-				if (string.IsNullOrEmpty(www.error)) {
-					// No error means success
-					Success(www.assetBundle);
-				} else {
-					Error(www.error);
-				}
+				CheckErrorOrSuccess(www);
 			}
 		}
+
 		#endregion
 	}
 }

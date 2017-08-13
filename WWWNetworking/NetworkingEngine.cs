@@ -35,6 +35,10 @@ namespace WWWNetworking
 			}
 		}
 
+		/// <summary>
+		/// Number of requests currently running.
+		/// </summary>
+		/// <value>The active count</value>
 		public int ActiveCount { get; private set; }
 
 		/// <summary>
@@ -44,6 +48,10 @@ namespace WWWNetworking
 
 		Queue<IRequest> m_Queue = new Queue<IRequest>();
 
+		/// <summary>
+		/// Number of requests which have yet to run.
+		/// </summary>
+		/// <value>The queued count</value>
 		public int QueuedCount { get { return m_Queue.Count; } }
 
 		/// <summary>
@@ -67,6 +75,9 @@ namespace WWWNetworking
 			OnAllCompleted();
 		}
 
+		/// <summary>
+		/// Invokes the <see cref="AllCompleted"/> delegate.
+		/// </summary>
 		protected void OnAllCompleted()
 		{
 			AllCompleted?.Invoke();
@@ -113,11 +124,16 @@ namespace WWWNetworking
 		}
 
 		#region Overrides
+
+		/// <summary>
+		/// Called by the engine when values in the inspector are changed.
+		/// </summary>
 		protected virtual void OnValidate()
 		{
 			// Max concurrent can not be negative
 			m_MaxConcurrent = Math.Max(0, m_MaxConcurrent);
 		}
+
 		#endregion
 	}
 }

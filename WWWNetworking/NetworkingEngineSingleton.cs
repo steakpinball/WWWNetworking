@@ -8,7 +8,7 @@ namespace WWWNetworking
 	/// </summary>
 	public class NetworkingEngineSingleton : NetworkingEngine
 	{
-		static private NetworkingEngineSingleton s_instance;
+		static NetworkingEngineSingleton s_Instance;
 
 		/// <summary>
 		/// Gets the instance.
@@ -18,23 +18,32 @@ namespace WWWNetworking
 		{
 			get
 			{
-				if (!s_instance) {
-					new GameObject("NetworkingEngineSingleton").AddComponent<NetworkingEngineSingleton>();
+				if (!s_Instance) {
+					s_Instance = Object.FindObjectOfType<NetworkingEngineSingleton>();
+
+					if (!s_Instance) {
+						s_Instance = new GameObject(nameof(NetworkingEngineSingleton)).AddComponent<NetworkingEngineSingleton>();
+					}
 				}
 
-				return s_instance;
+				return s_Instance;
 			}
 		}
 
 		#region MonoBehaviour Messages
+
+		/// <summary>
+		/// Called by engine.
+		/// </summary>
 		protected virtual void Awake()
 		{
-			if (null == s_instance) {
-				s_instance = this;
+			if (null == s_Instance) {
+				s_Instance = this;
 			} else {
-				Destroy(this);
+				Destroy(gameObject);
 			}
 		}
+
 		#endregion
 	}
 }
