@@ -16,7 +16,7 @@ namespace WWWNetworking
 		/// </summary>
 		[SerializeField]
 		[Tooltip("Maximum number of concurrent downloads.")]
-		int m_maxConcurrent = 1;
+		int m_MaxConcurrent = 1;
 
 		/// <summary>
 		/// Gets or sets maximum number of concurrently running requests.
@@ -27,10 +27,10 @@ namespace WWWNetworking
 		/// <value>Maximum number of concurrent running requests</value>
 		public int MaxConcurrent
 		{
-			get { return m_maxConcurrent; }
+			get { return m_MaxConcurrent; }
 			set
 			{
-				m_maxConcurrent = Math.Max(0, value);
+				m_MaxConcurrent = Math.Max(0, value);
 				CheckProcess();
 			}
 		}
@@ -42,9 +42,9 @@ namespace WWWNetworking
 		/// </summary>
 		public event Action AllCompleted;
 
-		Queue<IRequest> m_queue = new Queue<IRequest>();
+		Queue<IRequest> m_Queue = new Queue<IRequest>();
 
-		public int QueuedCount { get { return m_queue.Count; } }
+		public int QueuedCount { get { return m_Queue.Count; } }
 
 		/// <summary>
 		/// Adds a request to the queue or starts it if possible.
@@ -52,7 +52,7 @@ namespace WWWNetworking
 		/// <param name="request">Request</param>
 		public void Add(IRequest request)
 		{
-			m_queue.Enqueue(request);
+			m_Queue.Enqueue(request);
 			CheckProcessNext();
 		}
 
@@ -61,7 +61,7 @@ namespace WWWNetworking
 		/// </summary>
 		public void CancelAll()
 		{
-			m_queue.Clear();
+			m_Queue.Clear();
 			StopAllCoroutines();
 			ActiveCount = 0;
 			OnAllCompleted();
@@ -69,28 +69,26 @@ namespace WWWNetworking
 
 		protected void OnAllCompleted()
 		{
-			if (null != AllCompleted) {
-				AllCompleted();
-			}
+			AllCompleted?.Invoke();
 		}
 
 		void CheckProcess()
 		{
-			while (ActiveCount < m_maxConcurrent && 0 < m_queue.Count) {
+			while (ActiveCount < m_MaxConcurrent && 0 < m_Queue.Count) {
 				ProcessNext();
 			}
 		}
 
 		void CheckProcessNext()
 		{
-			if (ActiveCount < m_maxConcurrent && 0 < m_queue.Count) {
+			if (ActiveCount < m_MaxConcurrent && 0 < m_Queue.Count) {
 				ProcessNext();
 			}
 		}
 
 		void ProcessNext()
 		{
-			Process(m_queue.Dequeue());
+			Process(m_Queue.Dequeue());
 		}
 
 		void Process(IRequest request)
@@ -118,7 +116,7 @@ namespace WWWNetworking
 		protected virtual void OnValidate()
 		{
 			// Max concurrent can not be negative
-			m_maxConcurrent = Math.Max(0, m_maxConcurrent);
+			m_MaxConcurrent = Math.Max(0, m_MaxConcurrent);
 		}
 		#endregion
 	}
