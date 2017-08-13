@@ -19,7 +19,7 @@ namespace WWWNetworking
 		/// Download progress callback.
 		/// </summary>
 		/// <value>Callback</value>
-		Action<float> m_DownloadProgress { get; private set; }
+		Action<float> m_DownloadProgress { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:WWWNetworking.FormProgressRequest"/> class.
