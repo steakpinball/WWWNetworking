@@ -28,7 +28,6 @@
     <Compile Include="FormRequest.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="NetworkingEngine.cs" />
-    <Compile Include="NetworkingEngineRequestExtensions.cs" />
     <Compile Include="NetworkingEngineSingleton.cs" />
     <Compile Include="ProgressRequest.cs" />
     <Compile Include="Request.cs" />
