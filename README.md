@@ -9,9 +9,9 @@ This is the primary interface to the library. It is also available as a singleto
     using WWWNetworking;
     public class FloatingImage : MonoBehaviour {
       void Start() {
-        NetworkEngineSingleton.Instance.Download("http://images.earthcam.com/ec_metros/ourcams/fridays.jpg", www => {
+        NetworkEngineSingleton.Instance.Add(new Request("http://images.earthcam.com/ec_metros/ourcams/fridays.jpg", www => {
           GetComponent<Renderer>().material.mainTexture = www.texture;
-        });
+        }));
       }
     }
 Each instance has a configurable maximum number of concurrent requests. Increasing the maximum immediately starts running more requests if queued while decreasing leaves requests running if over the maximum.
