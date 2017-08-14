@@ -19,7 +19,7 @@ namespace WWWNetworking
 			get
 			{
 				if (!s_Instance) {
-					s_Instance = Object.FindObjectOfType<NetworkingEngineSingleton>();
+					s_Instance = FindObjectOfType<NetworkingEngineSingleton>();
 
 					if (!s_Instance) {
 						s_Instance = new GameObject(nameof(NetworkingEngineSingleton)).AddComponent<NetworkingEngineSingleton>();
